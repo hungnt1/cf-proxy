@@ -6,6 +6,7 @@ const bodyParser = require('koa-bodyparser');
 const app = new Koa();
 app.use(bodyParser());
 const jsesc = require('jsesc');
+const { query } = require('koa/lib/request');
 
 const headersToRemove = [
     "host", "user-agent", "accept", "accept-encoding", "content-length",
@@ -28,8 +29,9 @@ const responseHeadersToRemove = ["Accept-Ranges", "Content-Length", "Keep-Alive"
         options.args.push(`--proxy-server=${process.env.PUPPETEER_PROXY}`);
     const browser = await puppeteer.launch(options);
     app.use(async ctx => {
-        if (ctx.query.url) {
-            const url = ctx.url.replace("/?url=", "");
+        if (ctx) {
+            const url = ctx.url.replace("/url=", "");
+
             let responseBody;
             let responseData;
             let responseHeaders;
