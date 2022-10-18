@@ -17,10 +17,20 @@ const responseHeadersToRemove = ["Accept-Ranges", "Content-Length", "Keep-Alive"
 (async () => {
     let options = {
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+
+        args: [
+                  '--no-sandbox',
+                  '--disable-setuid-sandbox',
+                  '--disable-dev-shm-usage',
+                  '--disable-accelerated-2d-canvas',
+                  '--no-first-run',
+                  '--no-zygote',
+                  '--single-process', // <- this one doesn't works in Windows
+                  '--disable-gpu'
+        ],
+
     };
-    if (process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD)
-        options.executablePath = '/usr/bin/chromium-browser';
+    options.executablePath = '/usr/bin/chromium-browser';
     if (process.env.PUPPETEER_HEADFUL)
         options.headless = false;
     if (process.env.PUPPETEER_USERDATADIR)
@@ -31,10 +41,10 @@ const responseHeadersToRemove = ["Accept-Ranges", "Content-Length", "Keep-Alive"
     app.use(async ctx => {
         if (ctx) {
             const url = ctx.url.replace("/url=", "");
-
+            console.log("Request URL:" , url)
             let responseBody;
             let responseData;
-            let responseHeaders;
+            let responseHeaders = [];
             const page = await browser.newPage();
             if (ctx.method == "POST") {
                 await page.removeAllListeners('request');
